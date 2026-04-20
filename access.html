@@ -71,7 +71,7 @@
     }
 
     window.copyDriveLink = function(link) {
-      navigator.clipboard.writeText(link).then(() => {
+      const showSuccess = () => {
         const msg = document.getElementById('copyMessage');
         const originalText = "Tip: Click 'Add to My Drive' inside the folder to save it permanently to your Google Drive.";
         msg.innerHTML = "<strong>✅ Link copied to clipboard!</strong>";
@@ -80,8 +80,38 @@
           msg.innerText = originalText;
           msg.style.color = "";
         }, 3000);
-      });
+      };
+
+      // Modern Clipboard API
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(link)
+          .then(showSuccess)
+          .catch(err => fallbackCopyTextToClipboard(link, showSuccess));
+      } else {
+        fallbackCopyTextToClipboard(link, showSuccess);
+      }
     };
+
+    function fallbackCopyTextToClipboard(text, onSuccess) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      // Avoid scrolling to bottom
+      textArea.style.top = "0";
+      textArea.style.left = "0";
+      textArea.style.position = "fixed";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) onSuccess();
+      } catch (err) {
+        console.error('Fallback: Oops, unable to copy', err);
+        alert("Failed to copy link. Please manually copy this: " + text);
+      }
+      document.body.removeChild(textArea);
+    }
   </script>
 </body>
 </html>
