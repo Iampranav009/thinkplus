@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Think Plus — Course Access." />
+  <title>Payment Successful — Think Plus</title>
+  <link rel="icon" href="logo.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Navbar Minimal -->
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img src="logo.png" alt="Think Plus Logo" />
+        <span>Think Plus</span>
+      </a>
+    </div>
+  </nav>
+
+  <main class="access-container" id="accessContent">
+    <!-- Injected by JS -->
+  </main>
+
+  <script src="data.js"></script>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const courseId = urlParams.get('id');
+    const paymentId = urlParams.get('payment_id') || urlParams.get('razorpay_payment_id') || urlParams.get('razorpay_payment_link_id');
+    const course = COURSES.find(c => c.id === courseId);
+
+    const accessContent = document.getElementById('accessContent');
+
+    if (!course || !paymentId) {
+      accessContent.innerHTML = `
+        <h2>Invalid Access Request</h2>
+        <p>It looks like you're missing a valid course ID or payment verification.</p>
+        <a href="index.html" class="back-link">← Return to courses</a>
+      `;
+    } else {
+      accessContent.innerHTML = `
+        <div class="success-icon">✓</div>
+        <h1>Payment Successful! 🎉</h1>
+        <p>You now have access to <strong>${course.name}</strong>.</p>
+        
+        <div class="instructions-box">
+          <p>How to access your course:</p>
+          <ol>
+            <li>Click the button below to open your Google Drive folder.</li>
+            <li>Sign in with your Google account if prompted.</li>
+            <li>All videos, notes, and resources are inside the folder.</li>
+            <li>Bookmark the Drive link — it's your permanent access point.</li>
+            <li>Do not share this link. It is for your personal use only.</li>
+          </ol>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
+          <a href="${course.driveLink}" target="_blank" class="btn-access" style="flex: 1; text-align: center; margin-top: 0;">Open Course in Google Drive ↗</a>
+          <button onclick="copyDriveLink('${course.driveLink}')" class="btn-access" style="flex: 1; background: #374151; color: white; margin-top: 0; cursor: pointer; border: none; font-size: 16px; font-weight: 600; border-radius: 8px;">Copy Link 📋</button>
+        </div>
+        <p class="access-tip" id="copyMessage">Tip: Click 'Add to My Drive' inside the folder to save it permanently to your Google Drive.</p>
+
+        <a href="index.html" class="back-link" style="margin-top: 32px; display: inline-block;">← Browse more courses</a>
+      `;
+    }
+
+    window.copyDriveLink = function(link) {
+      navigator.clipboard.writeText(link).then(() => {
+        const msg = document.getElementById('copyMessage');
+        const originalText = "Tip: Click 'Add to My Drive' inside the folder to save it permanently to your Google Drive.";
+        msg.innerHTML = "<strong>✅ Link copied to clipboard!</strong>";
+        msg.style.color = "#16A34A";
+        setTimeout(() => {
+          msg.innerText = originalText;
+          msg.style.color = "";
+        }, 3000);
+      });
+    };
+  </script>
+</body>
+</html>

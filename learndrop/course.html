@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Think Plus — curated tech courses at ₹149. One-time payment, lifetime Google Drive access." />
+  <title>Course Detail — Think Plus</title>
+  <link rel="icon" href="logo.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+
+  <!-- Navbar Minimal -->
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img src="logo.png" alt="Think Plus Logo" />
+        <span>Think Plus</span>
+      </a>
+    </div>
+  </nav>
+
+  <main class="course-detail-container">
+    <a href="index.html" class="back-link">← All Courses</a>
+
+    <div id="courseContent">
+      <!-- Injected by JS -->
+    </div>
+  </main>
+
+  <!-- Sticky Mobile CTA -->
+  <div class="cta-sticky" id="stickyCta" style="display: none;">
+    <div class="price-group">
+      <span class="sale-price" id="stickySale"></span>
+      <span class="original-price" id="stickyOriginal"></span>
+    </div>
+    <button id="stickyBuyBtn">Get Course</button>
+  </div>
+
+  <!-- Footer Minimal -->
+  <footer>
+    <div class="container">
+      <div class="footer-bottom" style="flex-direction: column; text-align: center; justify-content: center; width: 100%;">
+        <div>🔒 Payments secured by Razorpay</div>
+        <div style="margin-top: 8px;">
+          © 2025 Think Plus. All rights reserved.<br>
+          <span style="font-size: 11px; opacity: 0.7;">Course content delivered via Google Drive.</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="razorpay.js"></script>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const courseId = urlParams.get('id');
+    const course = COURSES.find(c => c.id === courseId);
+
+    if (!course) {
+      document.getElementById('courseContent').innerHTML = `<h2>Course not found.</h2><a href="index.html">Return home</a>`;
+    } else {
+      document.title = `${course.name} — Think Plus`;
+
+      // Render Highlights
+      const highlightsHtml = course.highlights.map(h => `<li style="margin-bottom: 12px; display: flex; gap: 8px;"><span style="color: #16A34A">✓</span> <span>${h}</span></li>`).join('');
+
+      document.getElementById('courseContent').innerHTML = `
+        <div class="course-header">
+          <div class="icon">${course.icon}</div>
+          <h1>${course.name}</h1>
+          <p class="tagline">${course.tagline}</p>
+          <div class="badge-row" style="display: flex; gap: 8px; color: #6B7280; font-size: 14px; margin-bottom: 24px;">
+            <span>${course.level}</span> • <span>${course.duration}</span>
+          </div>
+        </div>
+
+        <p class="course-description">${course.description}</p>
+
+        <div class="whats-inside">
+          <h2>What's inside</h2>
+          <ul style="list-style: none; padding: 0; margin: 0;">${highlightsHtml}</ul>
+        </div>
+
+        <div class="requirements">
+          <h2>Requirements</h2>
+          <p>${course.requirements}</p>
+        </div>
+
+        <div class="restriction-notice">
+          <strong>🔒 Restricted Content — Google Drive Access</strong>
+          This course is delivered as a private Google Drive folder.<br>
+          The access link is revealed only after payment is confirmed.<br>
+          Do not share the link. Each purchase is for personal use only.
+        </div>
+
+        <div class="pricing-block">
+          <div class="price-row">
+            <span class="original-price">₹${course.originalPrice.toLocaleString('en-IN')}</span>
+            <span class="sale-price">₹${course.salePrice}</span>
+            <span class="discount-badge">90% OFF</span>
+          </div>
+          <div class="payment-note">One-time payment · Lifetime Google Drive access</div>
+          <button class="btn-buy" onclick="launchPayment(course)">Get This Course — ₹${course.salePrice}</button>
+        </div>
+      `;
+
+      // Setup Sticky CTA for Mobile
+      const stickyCta = document.getElementById('stickyCta');
+      document.getElementById('stickySale').innerText = `₹${course.salePrice}`;
+      document.getElementById('stickyOriginal').innerText = `₹${course.originalPrice.toLocaleString('en-IN')}`;
+      
+      const stickyBuyBtn = document.getElementById('stickyBuyBtn');
+      stickyBuyBtn.onclick = () => launchPayment(course);
+      
+      stickyCta.style.display = 'flex';
+      
+      // Add bottom padding to body on mobile so content isn't hidden behind sticky CTA
+      if (window.innerWidth < 640) {
+        document.body.style.paddingBottom = '80px';
+      }
+    }
+  </script>
+</body>
+</html>
