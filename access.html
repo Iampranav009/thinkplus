@@ -30,10 +30,18 @@
   <script src="data.js"></script>
   <script>
     const urlParams = new URLSearchParams(window.location.search);
+
+    // Primary: course ID from URL (Razorpay embeds it in the redirect URL)
     const urlCourseId = urlParams.get('id');
-    const localCourseId = localStorage.getItem('pendingCourseId');
+
+    // Fallback: localStorage — wrapped in try/catch because cross-origin redirects
+    // from rzp.io can cause "Access to storage is not allowed from this context"
+    // in Safari, Brave, Firefox strict mode, and incognito windows.
+    let localCourseId = null;
+    try { localCourseId = localStorage.getItem('pendingCourseId'); } catch (e) { /* storage blocked */ }
+
     const courseId = urlCourseId || localCourseId;
-    
+
     const paymentId = urlParams.get('payment_id') || urlParams.get('razorpay_payment_id') || urlParams.get('razorpay_payment_link_id');
     const course = COURSES.find(c => c.id === courseId);
 
