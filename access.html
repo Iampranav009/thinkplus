@@ -56,48 +56,13 @@
           </ol>
         </div>
 
-        <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
-          <a href="${course.driveLink}" target="_blank" class="btn-access" style="flex: 1; text-align: center; margin-top: 0;">Open Course in Google Drive ↗</a>
-          <button onclick="copyDriveLink('${course.driveLink}')" class="btn-access" style="flex: 1; background: #374151; color: white; margin-top: 0; cursor: pointer; border: none; font-size: 16px; font-weight: 600; border-radius: 8px;">Copy Link 📋</button>
-        </div>
-        <p class="access-tip" id="copyMessage">Tip: Click 'Add to My Drive' inside the folder to save it permanently to your Google Drive.</p>
+        <a href="${course.driveLink}" target="_blank" class="btn-access" style="display: block; text-align: center; margin-top: 24px;">Open Course in Google Drive ↗</a>
 
         <a href="index.html" class="back-link" style="margin-top: 32px; display: inline-block;">← Browse more courses</a>
       `;
     }
 
-    window.copyDriveLink = function(link) {
-      const msg = document.getElementById('copyMessage');
-      const originalText = "Tip: Click 'Add to My Drive' inside the folder to save it permanently to your Google Drive.";
 
-      // Use only the DOM-textarea method — zero Promises, zero storage API calls.
-      // navigator.clipboard.writeText() also throws "Access to storage is not allowed
-      // from this context" in Brave, Safari ITP, Firefox strict mode, and incognito,
-      // producing an "Uncaught (in promise)" error that bypasses .catch() in some contexts.
-      const textArea = document.createElement("textarea");
-      textArea.value = link;
-      textArea.style.cssText = "position:fixed;top:0;left:0;opacity:0;pointer-events:none;";
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-
-      let copied = false;
-      try {
-        copied = document.execCommand('copy');
-      } catch (err) {
-        copied = false;
-      }
-      document.body.removeChild(textArea);
-
-      if (copied) {
-        msg.innerHTML = "<strong>✅ Link copied to clipboard!</strong>";
-        msg.style.color = "#16A34A";
-        setTimeout(() => { msg.innerText = originalText; msg.style.color = ""; }, 3000);
-      } else {
-        // Last resort: prompt the user to copy manually
-        window.prompt("Copy this link (Ctrl+C / Cmd+C):", link);
-      }
-    };
   </script>
 </body>
 </html>
