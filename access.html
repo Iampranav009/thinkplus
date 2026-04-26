@@ -82,47 +82,37 @@
     }
 
     window.copyDriveLink = function(link) {
-      const showSuccess = () => {
-        const msg = document.getElementById('copyMessage');
-        const originalText = "Tip: Click 'Add to My Drive' inside the folder to save it permanently to your Google Drive.";
-        msg.innerHTML = "<strong>✅ Link copied to clipboard!</strong>";
-        msg.style.color = "#16A34A";
-        setTimeout(() => {
-          msg.innerText = originalText;
-          msg.style.color = "";
-        }, 3000);
-      };
+      const msg = document.getElementById('copyMessage');
+      const originalText = "Tip: Click 'Add to My Drive' inside the folder to save it permanently to your Google Drive.";
 
-      // Modern Clipboard API
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(link)
-          .then(showSuccess)
-          .catch(err => fallbackCopyTextToClipboard(link, showSuccess));
-      } else {
-        fallbackCopyTextToClipboard(link, showSuccess);
-      }
-    };
-
-    function fallbackCopyTextToClipboard(text, onSuccess) {
+      // Use only the DOM-textarea method — zero Promises, zero storage API calls.
+      // navigator.clipboard.writeText() also throws "Access to storage is not allowed
+      // from this context" in Brave, Safari ITP, Firefox strict mode, and incognito,
+      // producing an "Uncaught (in promise)" error that bypasses .catch() in some contexts.
       const textArea = document.createElement("textarea");
-      textArea.value = text;
-      // Avoid scrolling to bottom
-      textArea.style.top = "0";
-      textArea.style.left = "0";
-      textArea.style.position = "fixed";
+      textArea.value = link;
+      textArea.style.cssText = "position:fixed;top:0;left:0;opacity:0;pointer-events:none;";
       document.body.appendChild(textArea);
       textArea.focus();
       textArea.select();
 
+      let copied = false;
       try {
-        const successful = document.execCommand('copy');
-        if (successful) onSuccess();
+        copied = document.execCommand('copy');
       } catch (err) {
-        console.error('Fallback: Oops, unable to copy', err);
-        alert("Failed to copy link. Please manually copy this: " + text);
+        copied = false;
       }
       document.body.removeChild(textArea);
-    }
+
+      if (copied) {
+        msg.innerHTML = "<strong>✅ Link copied to clipboard!</strong>";
+        msg.style.color = "#16A34A";
+        setTimeout(() => { msg.innerText = originalText; msg.style.color = ""; }, 3000);
+      } else {
+        // Last resort: prompt the user to copy manually
+        window.prompt("Copy this link (Ctrl+C / Cmd+C):", link);
+      }
+    };
   </script>
 </body>
 </html>
